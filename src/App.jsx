@@ -21,10 +21,9 @@ const App = () => {
   // Function to handle search input change
   const handleInputChange = (event) => {
     setQuery(event.target.value);
-  };
 
   // Function to handle search button click
-  const handleSearch = () => {
+  
     // Filter countries based on the search query
     const filtered = countries.filter(country =>
       country.name.toLowerCase().includes(query.toLowerCase())
@@ -35,6 +34,8 @@ const App = () => {
   return (
     <div>
       <h1>Country Information App</h1>
+      <p>Search for countries:</p>
+
       {/* Input field for search */}
       <input
         type="text"
@@ -42,8 +43,6 @@ const App = () => {
         value={query}
         onChange={handleInputChange}
       />
-      {/* Search button */}
-      <button onClick={handleSearch}>Search</button>
       
       {/* Display filtered countries */}
       <ul>
