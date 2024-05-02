@@ -1,34 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
-// Define your array of country objects
-const countries = [
-  { name: 'Finland', capital: 'Helsinki' },
-  { name: 'United States', capital: 'Washington, D.C.' },
-  { name: 'Japan', capital: 'Tokyo' },
-  { name: 'Germany', capital: 'Berlin' },
-  { name: 'France', capital: 'Paris' },
-  // Add more countries as needed
-];
-
-// Define your App component
 const App = () => {
-  // State to store the search query
   const [query, setQuery] = useState('');
-  
-  // State to store the filtered countries
+  const [countries, setCountries] = useState([]);
   const [filteredCountries, setFilteredCountries] = useState([]);
 
-  // Function to handle search input change
-  const handleInputChange = (event) => {
-    setQuery(event.target.value);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get('http://localhost:3001/countries');
+        setCountries(response.data);
+      } catch (error) {
+        console.error('Error fetching countries:', error);
+      }
+    };
 
-  // Function to handle search button click
-  
+    fetchData();
+  }, []); // Fetch data only once when the component mounts
+
+  useEffect(() => {
     // Filter countries based on the search query
     const filtered = countries.filter(country =>
       country.name.toLowerCase().includes(query.toLowerCase())
     );
     setFilteredCountries(filtered);
+  }, [query, countries]); // Update filtered countries when query or countries change
+
+  const handleInputChange = (event) => {
+    setQuery(event.target.value);
   };
 
   return (
@@ -45,16 +45,26 @@ const App = () => {
       />
       
       {/* Display filtered countries */}
-      <ul>
-        {filteredCountries.map((country, index) => (
+      <ul className='nameList'>
+      {filteredCountries.length > 10 ? (
+          <p>Too many matches. Specify another filter.</p>
+        ) : ( filteredCountries.map((country, index) => (
           <li key={index}>
-            {country.name} - {country.capital}
+            <h1>{country.name}</h1>
+            <p>Capital {country.capital}</p>
+            <p>Area {country.area}</p>
+            <h4>Languages:</h4>
+            <ul>
+              {country.languages.map((language, index) => (
+                <li key={index}>{language}</li>
+              ))}
+            </ul>
           </li>
-        ))}
+        ))
+        )}
       </ul>
     </div>
   );
 };
 
-// Export the App component
 export default App;
