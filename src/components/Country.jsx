@@ -12,4 +12,4 @@ const Country = ({ name, onClick }) => {
   );
 };
 
-export default Country;
+export default Country; 
