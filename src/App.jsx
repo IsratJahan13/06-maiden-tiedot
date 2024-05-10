@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import Country from './components/Country';
 import "./App.css";
+import axios from 'axios';
 
 const App = () => {
   const [countries, setCountries] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCountry, setSelectedCountry] = useState(null);
+  const [weather, setWeather] = useState(null);
+
 
   useEffect(() => {
     fetch('https://studies.cs.helsinki.fi/restcountries/api/all')
@@ -26,6 +29,25 @@ const App = () => {
   const filteredCountries = countries.filter(country =>
     country.name.common.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  useEffect(() => {
+    const apiKey = import.meta.env.VITE_OPENWEATHERMAP_API_KEY;
+    const fetchWeather = async () => {
+      if (filteredCountries.length === 1 && filteredCountries[0].capital) {
+        const capital = filteredCountries[0].capital[0];
+        const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${capital}&appid=${apiKey}&units=metric`;
+
+        try {
+          const response = await axios.get(apiUrl);
+          setWeather(response.data);
+        } catch (error) {
+          console.error("Error fetching weather data:", error);
+        }
+      }
+    };
+
+    fetchWeather();
+  }, [filteredCountries]);
 
   return (
     <div>
@@ -57,6 +79,18 @@ const App = () => {
                   <figure className="image">
                     <img src={country.flags.svg} alt={`Flag of ${country.name.common}`} />
                   </figure>
+
+                  {weather && (
+                  <div>
+                    <h3>Weather in {country.capital}:</h3>
+                    <p>Temperature: {weather.main.temp}°C</p>
+                    <img
+                      src={`https://openweathermap.org/img/w/${weather.weather[0].icon}.png`}
+                      alt="Weather Icon"
+                    />
+                    <p>wind: {weather.wind.speed}m/s</p>
+                  </div>
+                )}
                 </div>
               ) : (
                 <Country
